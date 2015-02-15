@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+   
+
+
+        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+       <script src="http://jqueryvalidation.org/files/dist/jquery.validate.min.js"></script>
+        <script src="http://jqueryvalidation.org/files/dist/additional-methods.min.js"></script>
+    <script>
+
+	window.fbAsyncInit = function() 
+	{
+		FB.init({
+		appId      : '1392261511034394',
+		xfbml      : true,
+		version    : 'v2.2'
+				});
+	};
+
+	
+  (function(d, s, id)
+  {
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
+
+</script>
+
+<script>
+
+	
+function fb_post(){	
+FB.ui(
+{
+	method: 'feed',
+	name: res['street']+', '+res['city']+', '+res['state']+'-'+res['zipcode'],
+	caption: 'Property Information from Zillow.com',
+	description: "Last Sold Price: "+res['lastSoldPrice']+", 30 Days Overall Change: "+res['estimateValueChange'],
+	display:'popup',	
+	link: res['homedetails'],
+	picture: res['graph1']
+	
+	
+	
+},
+
+ function(response){if(response && response.post_id){
+		 alert("Posted Successfully");} else { alert("Not Posted");}});
+
+}
+
+</script>
+    
+  
+ 
+
+  
+    <title>Property Search</title>
+    <script>
+       $(document).ready(function()
+	{
+           $('#propertyform').submit(function()
+		{
+               street1 = $('#address_id').val();
+               city1 = $('#city_id').val();
+               state1 = $('state_id').val();
+				$.ajax
+		(
+			{
+			type:"GET",
+			dataType: 'json',
+			url:'http://cs-server.usc.edu:20843/responsive.php/?street_address='+street1+'&city='+city1+'&state='+state1,
+			data: $('#propertyform').serialize(),
+			success:function(data)
+				{
+                    var text="";
+					res=jQuery.parseJSON(JSON.stringify(data));
+                   // alert(JSON.stringify(data));
+                    
+                    
+                    if(res['code']!="0")
+                    {
+                        if(res['code']=="508")
+                           {
+                           text+='<p style="color:red;text-align:center;font-size:20px">No exact match found--Verify that the given address is correct.</p>';
+                           }
+                        { $('#display1').html(text);
+                         $("#tabledata").css("display","none"); }
+                        
+                        
+                        return;
+                    }
+
+				
+                    text+='<div class="table-responsive">';
+                
+                 text+='<table class="table table-striped">';
+                 text+='<tbody><tr><td colspan=3">';
+        text+='See more details for<a href='+res['homedetails']+' style="text-decoration:none"><font color="orange"> '+res['street']+','+res['city']+','+res['state']+'-';      
+                 text+=res['zipcode']+'</font></a> on Zillow</td><td><a href="javascript:fb_post();"><img align="left"'; 
+                 text+='src="http://static.excelined.org/wp-content/uploads/Share-on-Facebook.png" width="150" height="40"/></a></td></tr>';
+                 
+                 text+='<tr><td>Property Type:</td>';
+                 text+='<td>'+res['useCode']+'</td>';
+                 text+='<td>Last Sold Price:</td>';
+                 text+='<td>'+res['lastSoldPrice']+'</td></tr>';
+                    
+                 text+='<tr><td>Year Built:</td>';
+                 text+='<td>'+res['yearBuilt']+'</td>';
+                 text+='<td>Last Sold Date:</td>';
+                 text+='<td>'+res['lastSoldDate']+'</td></tr>';
+                    
+                 text+='<tr><td>Lot Size:</td>';
+                 text+='<td>'+res['lotSizeSqFt']+'</td>';
+                 text+='<td>Zestimate <sup>&reg;</sup> Property Estimate as of ' +res['estimateLastUpdate']+':</td>';
+                 text+='<td>'+res['estimateAmount']+'</td></tr>';
+                    
+                 text+='<tr><td>Finished Area:</td>';
+                 text+='<td>'+res['finishedSqFt']+'</td>';
+                 text+='<td>30 Days Overall Change:</td>';
+                 text+='<td><img src='+res['imgp']+' alt=""/>'+res['estimateValueChange']+'</td></tr>';  
+                    
+                 text+='<tr><td>Bathrooms:</td>';
+                 text+='<td>'+res['bathrooms']+'</td>';
+                 text+='<td>All Time Property Range:</td>';
+                 text+='<td>'+res['estimateValuationRangeLow'] +res['estimateValuationRangeHigh']+'</td></tr>';   
+                    
+                 text+='<tr><td>Bedrooms:</td>';
+                 text+='<td>'+res['bedrooms']+'</td>';
+                 text+='<td>Rent Zestimate <sup>&reg;</sup> Valuation as of' +res['restimateLastUpdate']+':</td>';
+                 text+='<td>'+res['restimateAmount']+'</td></tr>'; 
+                    
+                 text+='<tr><td>Tax Assessment Year:</td>';
+                 text+='<td>'+res['taxAssessmentYear']+'</td>';
+                 text+='<td>30 Days Rent Change:</td>';
+                 text+='<td><img src='+res['imgn']+' alt=""/>'+res['restimateValueChange']+'</td></tr>';
+                 text+='</td></tr>';     
+                    
+                 text+='<tr><td>Tax Assessment:</td>';
+                 text+='<td>'+res['taxAssessment']+'</td>';
+                 text+='<td>All Time Rent Change:</td>';
+                 text+='<td>'+res['restimateValuationRangeLow'] +res['restimateValuationRangeHigh']+'</td></tr>';
+                 text+='</td></tr></tbody></table></div>';
+                    text+="<div align='center' style='color:white'><font color='white'>&copy Zillow, Inc., 2006-2014. Use is subject to <a href=http://www.zillow.com/corp/Terms.htm><font color='orange'> Terms of Use</font></a> </div><div align='center'><a href=http://www.zillow.com/zestimate><font color='orange'>What's a Zestimate?</font></a></div>";
+                     
+                $("#tabledata").css("display","block");          
+               $("#infotab").html(text); 
+                    $('#display1').html("");
+                    var text1 = "";
+text1 +="<div id='carousel1' class='carousel slide' data-ride='carousel'><ol class='carousel-indicators'><li data-target='#carousel1' data-slide-to='0' class='active'></li>";
+
+text1 +="<li data-target='#carousel1' data-slide-to='1'></li><li data-target='#carousel1' data-slide-to='2'></li></ol>";
+
+text1 +="<div class='carousel-inner'><div class='active item' style='background-color:#ffffff'><img class='img-responsive center-block' src='"+res['graph1']+"' alt=''/><div class='carousel-caption'><font color='white'>Historical Zestimate for the past 1 year<br>"+res['street']+", "+res['city']+","+res['state']+"-"+res['zipcode']+"</font></div></div>";
+
+text1 +="<div class='item' style='background-color:#ffffff'><img class='img-responsive center-block' src='"+res['graph2']+"' alt=''/><div class='carousel-caption'><font color='white'>Historical Zestimate for the past 5 years<br>"+res['street']+", "+res['city']+","+res['state']+"-"+res['zipcode']+"</font></div></div>";
+
+text1 +="<div class='item' style='background-color:#ffffff'><img class='img-responsive center-block' src='"+res['graph3']+"' alt=''/><div class='carousel-caption'><font color='white'>Historical Zestimate for the past 10 years<br>"+res['street']+", "+res['city']+","+res['state']+"-"+res['zipcode']+"</font></div></div>";
+
+text1 +="<a class='left carousel-control' href='#carousel1' role='button' data-slide='prev'><span class='glyphicon glyphicon-chevron-left' aria-hidden='true'></span><span class='sr-only'>Previous</span></a><a class='right carousel-control' href='#carousel1' role='button' data-slide='next'>";
+
+text1 +="<span class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span><span class='sr-only'>Next</span></a></div>";
+
+text1 +="<div align='center' style='color:white'><font color='white'>&copy Zillow, Inc., 2006-2014. Use is subject to <a href=http://www.zillow.com/corp/Terms.htm><font color='orange'> Terms of Use</font></a> </div><div align='center'><a href=http://www.zillow.com/zestimate><font color='orange'>What's a Zestimate?</font></a></div>";
+                 
+              $("#graphtab").html(text1);        
+                    
+				},
+			
+			
+			}
+		);
+		
+		return false;
+		}
+		);
+                  $("#propertyform").validate({
+        rules: {
+            street_address:   {  required: true  },
+            city:   {  required: true  },
+            state:   {  required: true  }
+                },
+            errorPlacement: function(error, element) {
+                error.appendTo("#incorrect-"+element.attr('id'));
+        },
+         messages: {
+            street_address: "This field is required.",
+            city: "This field is required.",
+            state: "This field is required."
+                }
+     });
+		
+		
+	}
+);
+    </script>
+    </head>
+    <body background="http://www.neovisual.cz/files/V0779-d9.jpg" class="img-responsive" alt="Responsive image"> 
+        <form  id="propertyform" method="get" role="form" class="form-inline">
+    <div class="container">
+        <h4 style="color:orange">Search Your Property Here</h4>
+        <br>
+        <div class="row">
+            <div class="col-md-10">
+           <div class="form-group" style="vertical-align:top";>
+                <label style="color:orange" for="street_address">Street Address<sup>*</sup>:</label>
+                <input type="text" name="street_address" class="form-control" id="address_id" placeholder="Address">
+               <div id="incorrect-address_id" style="text-align:right;"></div>
+           </div>
+            <div class="form-group" style="vertical-align:top";>
+                <label style="color:orange" for="city">City<sup>*</sup>:</label>
+                <input type="text" name="city" class="form-control" id="city_id" placeholder="City">
+                <div id="incorrect-city_id" style="text-align:right;"></div>
+            </div>
+            <div class="form-group" style="vertical-align:top";>
+                <label style="color:orange" for="state">State<sup>*</sup>:</label>
+                <select name="state" size="1" class="form-control" id="state_id">
+                <option value=""></option>
+                <option value="AK">AK</option>
+                <option value="AL">AL</option>
+	            <option value="AR">AR</option>
+	            <option value="AZ">AZ</option>
+	            <option value="CA">CA</option>
+                <option value="CO">CO</option>
+	            <option value="CT">CT</option>
+	            <option value="DC">DC</option>
+	            <option value="DE">DE</option>
+                <option value="FL">FL</option>
+	            <option value="GA">GA</option>
+	            <option value="HI">HI</option>
+	            <option value="IA">IA</option>
+                <option value="ID">ID</option>
+	            <option value="IL">IL</option>
+	            <option value="IN">IN</option>
+	            <option value="KS">KS</option>
+                <option value="KY">KY</option>
+	            <option value="LA">LA</option>
+	            <option value="MA">MA</option>
+	            <option value="MD">MD</option>
+                <option value="ME">ME</option>
+	            <option value="MI">MI</option>
+	            <option value="MN">MN</option>
+	            <option value="MO">MO</option>
+                <option value="MS">MS</option>
+	            <option value="MT">MT</option>
+	            <option value="NC">NC</option>
+	            <option value="ND">ND</option>
+                <option value="NE">NE</option>
+	            <option value="NH">NH</option>
+	            <option value="NJ">NJ</option>
+	            <option value="NM">NM</option>
+                <option value="NV">NV</option>
+	            <option value="NY">NY</option>
+	            <option value="OH">OH</option>
+	            <option value="OK">OK</option>
+                <option value="OR">OR</option>
+	            <option value="PA">PA</option>
+	            <option value="RI">RI</option>
+	            <option value="SC">SC</option>
+                <option value="SD">SD</option>
+	            <option value="TN">TN</option>
+	            <option value="TX">TX</option>
+	            <option value="UT">UT</option>
+                <option value="VA">VA</option>
+	            <option value="VT">VT</option>
+	            <option value="WA">WA</option>
+	            <option value="WI">WI</option>
+                <option value="WV">WV</option>
+	            <option value="WY">WY</option>
+            </select>
+                <div id="incorrect-state_id" style="text-align:right;"></div>
+            </div>
+            <div class="form-group" style="vertical-align:top;">
+               <button type="submit" id="Submit" name="submit" class="btn btn-warning" class="form-control">Submit</button>
+            </div>
+            </div>
+            <div class="col-md-2">
+             <img src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_150x40_rounded.gif" class="img-responsive" alt="Zillow Real Estate Search" />
+                </div>
+            </div>
+        </div>
+            </div>
+        </form>
+    <hr style="color:white;"> </hr>
+    
+    <div style="height:50px;"></div>
+    <!-- <div id="container" style="margin-left:110px;margin-right:110px;"> -->
+    <div id="tabledata" style="display:none;">
+        <div class="bs-example bs-example-tabs" role="tabpanel">
+<ul class="nav nav-tabs" role="tablist" id="tab1">
+<li role="presentation" class="active" style="background-color:orange; border-radius:3px;"><a href="#infotab" role="tab" aria-controls="infotab" data-toggle="tab">Basic Info</a></li>
+<li role="presentation" style="background-color:orange; border-radius:3px;"><a href="#graphtab" role="tab" aria-controls="graphtab" data-toggle="tab">Historical Zestimates</a></li>
+</ul>
+<div class="tab-content">
+<div role="tabpanel" class="tab-pane active" id="infotab" style=" height:340px;background-color:white;"></div>
+<div role="tabpanel" class="tab-pane" id="graphtab"></div>
+</div>
+</div></div>
+    <div id="display1"></div>
+<style>
+         @media (max-width: 767px) {
+    .carousel-caption {
+        position: absolute;
+     
+    }
+    } 
+    .carousel-indicators li
+    {
+        background:white;
+    }
+     .carousel-indicators .active
+    {
+        background:orange;
+    }
+    ol.carousel-indicators
+    {
+        right:25px;
+    }
+ .carousel-caption {
+    
+    background: #333333;
+    background: rgba(0, 0, 0, 0.5);
+    text-align:left;  
+    top: auto;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 15px;
+   
+    }
+    .carousel-indicators
+    {
+        bottom: 50px;
+        text-align: right;
+       
+    }
+
+    label.error {
+        color:red;
+    }
+    
+     #propertyform select.error 
+    {
+        border:1px solid red;
+    }
+   
+    #propertyform input.error 
+    {
+        border:1px solid red;
+    }
+   
+            </style>
+   
+   
+    </body>
+</html>
